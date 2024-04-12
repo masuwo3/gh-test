@@ -5,7 +5,16 @@ on:
         description: 'Environment name'
         required: true
         type: string
-
+  workflow_dispatch:
+    inputs:
+      gh_env:
+        description: 'Environment name'
+        required: true
+        type: choice
+        options:
+          - 'staging'
+          - 'production'
+        
 
 jobs:
   start-deployment:
