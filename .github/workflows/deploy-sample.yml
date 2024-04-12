@@ -1,10 +1,4 @@
 on:
-  workflow_call: 
-    inputs:
-      gh_env:
-        description: 'Environment name'
-        required: true
-        type: string
   workflow_dispatch:
     inputs:
       gh_env:
@@ -14,7 +8,13 @@ on:
         options:
           - 'staging'
           - 'production'
-        
+  workflow_call:
+    inputs:
+      gh_env:
+        description: 'Environment name'
+        required: true
+        type: string
+
 
 jobs:
   start-deployment:
@@ -49,7 +49,7 @@ jobs:
 
 
   deploy:
-    needs: 
+    needs:
       - start-deployment
     name: Deploy
     runs-on: ubuntu-22.04
