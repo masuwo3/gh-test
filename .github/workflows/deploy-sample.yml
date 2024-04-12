@@ -39,9 +39,20 @@ jobs:
         deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
 
+  deploy:
+    needs: 
+      - start-deployment
+    name: Deploy
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+
   finish-deployment-success:
     needs: 
       - start-deployment
+      - deploy
     name: Finish Deployment (success)
     runs-on: ubuntu-22.04
     if: ${{ success() }}
@@ -61,6 +72,7 @@ jobs:
   finish-deployment-failure:
     needs: 
       - start-deployment
+      - deploy
     name: Finish Deployment (failure)
     runs-on: ubuntu-22.04
     if: ${{ !success() }}
