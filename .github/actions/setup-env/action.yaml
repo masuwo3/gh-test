@@ -16,4 +16,4 @@ runs:
       uses: aquaproj/aqua-installer@v2.3.0
       with:
         aqua_version: v2.23.1
-        aqua_opts: "" # Unset `-l` option
+        aqua_opts: "--exclude-tags gh-preinstalled" # Unset `-l` option
