@@ -1,0 +1,84 @@
+on:
+  workflow_dispatch:
+    inputs:
+      gh_env:
+        description: 'Environment name'
+        required: true
+        type: choice
+        options:
+          - 'staging'
+          - 'production'
+  workflow_call: 
+    inputs:
+      gh_env:
+        description: 'Environment name'
+        required: true
+        type: string
+
+
+jobs:
+  start-deployment:
+    name: Update deployment status(in_progress)
+    runs-on: ubuntu-22.04
+
+    outputs:
+      deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Extract environment
+      run: |
+        echo "COMMIT_MESSAGE=$(git log -1 HEAD --pretty=format:%s)" >> $GITHUB_ENV
+
+    - name: Create GitHub deployment
+      uses: chrnorm/deployment-action@v2
+      id: deployment
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        environment: ${{ inputs.gh_env }}
+        description: "${{ env.COMMIT_MESSAGE }}"
+
+    - name: Update deployment status (in_progress)
+      uses: chrnorm/deployment-status@v2
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        state: "in_progress"
+        description: "Start deploy"
+        deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+
+
+  finish-deployment-success:
+    needs: 
+      - start-deployment
+    name: Finish Deployment (success)
+    runs-on: ubuntu-22.04
+    if: ${{ success() }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Update deployment status (success)
+      uses: chrnorm/deployment-status@v2
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        state: "success"
+        description: "Finished deploy"
+        deployment-id: ${{ needs.start-deployment.outputs.deployment_id }}
+
+
+  finish-deployment-failure:
+    needs: 
+      - start-deployment
+    name: Finish Deployment (failure)
+    runs-on: ubuntu-22.04
+    if: ${{ !success() }}
+
+    steps:
+    - name: Update deployment status (not success)
+      uses: chrnorm/deployment-status@v2
+      with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
+        state: "failure"
+        description: "Failed deploy"
+        deployment-id: ${{ needs.start-deployment.outputs.deployment_id }}
