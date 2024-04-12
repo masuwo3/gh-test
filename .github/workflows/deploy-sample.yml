@@ -20,6 +20,7 @@ jobs:
   start-deployment:
     name: Update deployment status(in_progress)
     runs-on: ubuntu-22.04
+    environment: ${{ inputs.gh_env }}
 
     outputs:
       deployment_id: ${{ steps.deployment.outputs.deployment_id }}
@@ -53,6 +54,7 @@ jobs:
       - start-deployment
     name: Deploy
     runs-on: ubuntu-22.04
+    environment: ${{ inputs.gh_env }}
 
     steps:
     - uses: actions/checkout@v4
@@ -64,6 +66,7 @@ jobs:
       - deploy
     name: Finish Deployment (success)
     runs-on: ubuntu-22.04
+    environment: ${{ inputs.gh_env }}
     if: ${{ success() }}
 
     steps:
@@ -84,6 +87,7 @@ jobs:
       - deploy
     name: Finish Deployment (failure)
     runs-on: ubuntu-22.04
+    environment: ${{ inputs.gh_env }}
     if: ${{ !success() }}
 
     steps:
