@@ -1,13 +1,4 @@
 on:
-  workflow_dispatch:
-    inputs:
-      gh_env:
-        description: 'Environment name'
-        required: true
-        type: choice
-        options:
-          - 'staging'
-          - 'production'
   workflow_call: 
     inputs:
       gh_env:
